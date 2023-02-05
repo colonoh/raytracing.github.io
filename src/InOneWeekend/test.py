@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 width = height = 512
 
 # numpy (with for loops)
-lol = np.zeros((width, height, 3), dtype=np.uint8)
+lol = np.zeros((width, height, 3), dtype=np.uint8)  # np.uint8 = 0..255
 for j in range(height):
     for i in range(width):
         r = i / width
@@ -20,11 +20,11 @@ for j in range(height):
 
 da = xr.DataArray(
     data=lol,
-    dims=["y", "x", "channel"]
-    # coords=dict(
-    #     red=["r", "g", "b"]
-    # )
+    dims=["y", "x", "channel"],
+    coords=dict(
+        channel=["red", "green", "blue"]
+    )
 )
-print(da)
+print(da[0, 0].sel(channel="blue"))  # first pixel, only blue channel value
 da.plot.imshow()
 plt.show()
