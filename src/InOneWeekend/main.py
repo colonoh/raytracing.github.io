@@ -1,44 +1,34 @@
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
-from PIL import Image
 import taichi as ti
+from PIL import Image
 from taichi.math import vec3
 
 from src.InOneWeekend.ray import Ray
 
 
 @ti.func
-def hit_sphere(center: vec3, radius: float, r: Ray) -> float:
+def hit_sphere(center: vec3, radius: float, r: Ray) -> ti.f32:
     oc = r.origin - center
     a = ti.math.dot(r.direction, r.direction)
     b = 2.0 * ti.math.dot(oc, r.direction)
     c = ti.math.dot(oc, oc) - radius*radius
     discriminant = b*b - 4*a*c
-    return_value = -1.0
+    t = -1.0
     if discriminant < 0:
-        return_value = -1.0
+        t = -1.0
     else:
-        return_value = (-b - ti.math.sqrt(discriminant)) / (2.0 * a)
-    return return_value
+        t = (-b - ti.math.sqrt(discriminant)) / (2.0 * a)
+    return t
 
-"""    
-    auto t = hit_sphere(point3(0,0,-1), 0.5, r);
-    if (t > 0.0) {
-        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
-        return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
-    }
-    vec3 unit_direction = unit_vector(r.direction());
-    t = 0.5*(unit_direction.y() + 1.0);
-"""
 
 @ti.func
 def ray_color(ray: Ray) -> vec3:
-    return_color = vec3(0, 0, 0)  # cannot have more than one return statement in a Taichi function
+    return_color = vec3(0.0)  # cannot have more than one return statement in a Taichi function
     t = hit_sphere(vec3(0., 0., -1.), 0.5, ray)
     if t > 0.0:
-        N = (ray.at(t) - vec3(0, 0, -1)).normalized()
+        N = (ray.at(t) - vec3(0, 0, -1)).normalized()  # normal dir
         return_color = 0.5 * vec3(N.x + 1, N.y + 1, N.z + 1)
     else:
         t = 0.5 * (ray.direction.normalized().y + 1.0)
@@ -49,7 +39,7 @@ def ray_color(ray: Ray) -> vec3:
 def main():
     # Image
     aspect_ratio = 16.0 / 9.0
-    image_width = 400
+    image_width = 2560
     image_height = int(image_width / aspect_ratio)
 
     # Camera
