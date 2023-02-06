@@ -10,9 +10,24 @@ from src.InOneWeekend.ray import Ray
 
 
 @ti.func
+def hit_sphere(center: vec3, radius: float, r: Ray) -> bool:
+    oc = r.origin - center
+    a = ti.math.dot(r.direction, r.direction)
+    b = 2.0 * ti.math.dot(oc, r.direction)
+    c = ti.math.dot(oc, oc) - radius*radius
+    discriminant = b*b - 4*a*c
+    return discriminant > 0
+
+
+@ti.func
 def ray_color(ray: Ray) -> vec3:
-    t = 0.5 * (ray.direction.normalized().y + 1.0)
-    return (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0)
+    return_color = vec3(0, 0, 0)  # cannot have more than one return statement in a Taichi function
+    if hit_sphere(vec3(0., 0., -1.), 0.5, ray):
+        return_color = vec3(1, 0, 0)
+    else:
+        t = 0.5 * (ray.direction.normalized().y + 1.0)
+        return_color = (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0)
+    return return_color
 
 
 def main():
