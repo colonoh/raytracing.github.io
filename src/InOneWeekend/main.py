@@ -10,20 +10,36 @@ from src.InOneWeekend.ray import Ray
 
 
 @ti.func
-def hit_sphere(center: vec3, radius: float, r: Ray) -> bool:
+def hit_sphere(center: vec3, radius: float, r: Ray) -> float:
     oc = r.origin - center
     a = ti.math.dot(r.direction, r.direction)
     b = 2.0 * ti.math.dot(oc, r.direction)
     c = ti.math.dot(oc, oc) - radius*radius
     discriminant = b*b - 4*a*c
-    return discriminant > 0
+    return_value = -1.0
+    if discriminant < 0:
+        return_value = -1.0
+    else:
+        return_value = (-b - ti.math.sqrt(discriminant)) / (2.0 * a)
+    return return_value
 
+"""    
+    auto t = hit_sphere(point3(0,0,-1), 0.5, r);
+    if (t > 0.0) {
+        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
+        return 0.5*color(N.x()+1, N.y()+1, N.z()+1);
+    }
+    vec3 unit_direction = unit_vector(r.direction());
+    t = 0.5*(unit_direction.y() + 1.0);
+"""
 
 @ti.func
 def ray_color(ray: Ray) -> vec3:
     return_color = vec3(0, 0, 0)  # cannot have more than one return statement in a Taichi function
-    if hit_sphere(vec3(0., 0., -1.), 0.5, ray):
-        return_color = vec3(1, 0, 0)
+    t = hit_sphere(vec3(0., 0., -1.), 0.5, ray)
+    if t > 0.0:
+        N = (ray.at(t) - vec3(0, 0, -1)).normalized()
+        return_color = 0.5 * vec3(N.x + 1, N.y + 1, N.z + 1)
     else:
         t = 0.5 * (ray.direction.normalized().y + 1.0)
         return_color = (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0)
