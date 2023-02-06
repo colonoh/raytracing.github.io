@@ -46,7 +46,7 @@ def main():
 
     render()
     newImg1 = Image.fromarray(pixels.to_numpy())
-    plt.imshow(newImg1)
+    plt.imshow(newImg1, origin="lower")  # place 0,0 in the lower part of the screen and the y axis increases upwards
     plt.show()
 
     end_taichi = time.time()
